@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.tl-infobox {
+    margin: 0;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-color: white;
+    opacity: 60%;
+    z-index: 1;
+}
+
+.fps {
+    color: rgb(5, 2, 5);
+}
+
+.background {
+    width: 100vw;
+    height: 100vh;
+    background-color: turquoise;
+    display: flex;
+}
