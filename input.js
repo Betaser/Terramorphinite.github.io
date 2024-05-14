@@ -5,6 +5,14 @@ onmousemove = e => {
     mouseY = e.clientY;
 };
 
+function getNormalizedMousePos() {
+    const screen = getElement("viewport").getBoundingClientRect();
+    return new Vector2(
+        Math.max(0, Math.min(1, (mouseX - screen.left) / screen.width)),
+        Math.max(0, Math.min(1, (mouseY - screen.top) / screen.height))
+    );
+}
+
 function updateInputs(e, eventInfoToCheck = "code", keyDown = true) {
     let matched = false;
     checkInput: for (const input of Object.keys(PlayerInputs)) {

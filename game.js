@@ -36,6 +36,14 @@ function initFps(fpsValue) {
 }
 initFps(60);
 
+let entities = [new Pickaxe(getElement("pickaxe"))]
+let viewportRatio = 1;
+{
+    let viewport = getElement("viewport").getBoundingClientRect();
+    viewportRatio = viewport.width / viewport.height;
+}
+console.log("viewport is " + viewportRatio);
+
 function update() {
     requestAnimationFrame(update);
 
@@ -47,11 +55,31 @@ function update() {
 
         updateInput();
 
+        let background = getElement("background").getBoundingClientRect();
+        // very wide
+        let viewportWidth, viewportHeight;
+        if (background.width / background.height > viewportRatio) {
+            viewportHeight = background.height;
+            viewportWidth = viewportHeight * viewportRatio;
+        } else {
+            viewportWidth = background.width;
+            viewportHeight = viewportWidth / viewportRatio;
+        }
+        const viewport = getElement("viewport");
+        viewport.style.width = viewportWidth + "px";
+        viewport.style.height = viewportHeight + "px";
+        viewport.style.top = ((background.height - viewportHeight) / 2) + "px";
+        viewport.style.left = ((background.width - viewportWidth) / 2) + "px";
+
         if (PlayerInputsControllerKeyDown.Jump) {
             console.log("pressed jump");
         }
 
         // updateEntities(frames);
+        for (entity of entities) {
+            entity.update()
+        }
+        
         frames++;
 
         if (frames % displayFrameInterval === 0) {
