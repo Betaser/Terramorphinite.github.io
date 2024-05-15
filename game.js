@@ -1,5 +1,7 @@
 const PlayerInputs = Object.freeze({
     Jump: ["KeyW", "Space"],
+    LeftClick: [0],
+    FreezeGame: ["KeyF"]
 });
 
 const PlayerInputsController = Object.assign({}, PlayerInputs);

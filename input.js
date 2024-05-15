@@ -32,19 +32,29 @@ function updateInputs(e, eventInfoToCheck = "code", keyDown = true) {
 }
 
 onmouseup = e => {
+    e.preventDefault();
     updateInputs(e, "button", false);
 };
 
 onmousedown = e => {
+    e.preventDefault();
     updateInputs(e, "button", true);
 };
 
+document.addEventListener("contextmenu", e => {
+    if (e.button === 2) {
+        // console.log("right mouse button");
+        e.preventDefault();
+        // console.log("prevent context menu");
+    }
+});
+
 function setupInput() {
-    document.addEventListener("keyup", (e) => {
+    document.addEventListener("keyup", e => {
         updateInputs(e, "code", false);
     });
 
-    document.addEventListener("keydown", (e) => {
+    document.addEventListener("keydown", e => {
         updateInputs(e, "code", true);
     });
     // I can do document.addEventListener "click", but it's annoying that it will only activate on clicks,
