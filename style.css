@@ -5,10 +5,23 @@ body {
     overflow: hidden;
 }
 
-.pickaxe {
-    width: 20vw;
-    height: 20vw;
+/* don't use vw... it's doesn't use the parent size. */
+.block {
+    width: 8%;
+    aspect-ratio: 1 / 1;
     z-index: 2;
+    position: absolute;
+    /* default color */
+    background-color: pink;
+    opacity: 0.5;
+    outline-style: solid;
+    outline-color: black;
+}
+
+.pickaxe {
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    z-index: 3;
     position: absolute;
 }
 
@@ -32,6 +45,7 @@ body {
     background-color: rgba(200, 200, 200, 0.6);
     position: absolute;
 }
+
 .background {
     width: 100vw;
     height: 100vh;

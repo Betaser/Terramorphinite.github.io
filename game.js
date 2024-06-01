@@ -38,7 +38,10 @@ function initFps(fpsValue) {
 }
 initFps(60);
 
-let entities = [new Pickaxe(getElement("pickaxe"))]
+const WORLD_WIDTH = 160;
+const WORLD_HEIGHT = 90;
+
+let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 let viewportRatio = 1;
 {
     let viewport = getElement("viewport").getBoundingClientRect();
@@ -79,7 +82,11 @@ function update() {
 
         // updateEntities(frames);
         for (entity of entities) {
-            entity.update()
+            entity.update();
+        }
+
+        for (entity of entities) {
+            entity.render();
         }
         
         frames++;
