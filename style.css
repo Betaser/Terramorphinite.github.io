@@ -18,6 +18,12 @@ body {
     outline-color: black;
 }
 
+.air {
+    background-color: cyan;
+    opacity: 0.1;
+    outline-style: none;
+}
+
 .pickaxe {
     width: 20%;
     aspect-ratio: 1 / 1;

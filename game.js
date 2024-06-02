@@ -41,6 +41,8 @@ initFps(60);
 const WORLD_WIDTH = 160;
 const WORLD_HEIGHT = 90;
 
+let gamePaused = false;
+
 let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 let viewportRatio = 1;
 {
@@ -59,6 +61,10 @@ function update() {
         prevTime = now - (elapsed % fpsInterval);
 
         updateInput();
+        if (PlayerInputsControllerKeyDown.FreezeGame) {
+            gamePaused = !gamePaused;
+            console.log("game " + (gamePaused ? "paused" : "unpaused"));
+        }
 
         let background = getElement("background").getBoundingClientRect();
         // very wide
