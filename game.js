@@ -38,7 +38,12 @@ function initFps(fpsValue) {
 }
 initFps(60);
 
-let entities = [new Pickaxe(getElement("pickaxe"))]
+const WORLD_WIDTH = 160;
+const WORLD_HEIGHT = 90;
+
+let gamePaused = false;
+
+let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 let viewportRatio = 1;
 {
     let viewport = getElement("viewport").getBoundingClientRect();
@@ -56,6 +61,10 @@ function update() {
         prevTime = now - (elapsed % fpsInterval);
 
         updateInput();
+        if (PlayerInputsControllerKeyDown.FreezeGame) {
+            gamePaused = !gamePaused;
+            console.log("game " + (gamePaused ? "paused" : "unpaused"));
+        }
 
         let background = getElement("background").getBoundingClientRect();
         // very wide
@@ -79,7 +88,11 @@ function update() {
 
         // updateEntities(frames);
         for (entity of entities) {
-            entity.update()
+            entity.update();
+        }
+
+        for (entity of entities) {
+            entity.render();
         }
         
         frames++;

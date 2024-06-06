@@ -6,13 +6,15 @@ class Pickaxe {
     constructor(element) {
         this.pos = new Vector2(0, 0);
         this.element = element;
-        const rect = this.element.getBoundingClientRect();
-        this.width = rect.width;
-        this.height = rect.height;
         this.initialDegrees = 0;
         this.degrees = this.initialDegrees;
+        this.renderLeft = this.element.style.left;
+        this.renderTop = this.element.style.top;
 
         this.swingState = Pickaxe.SwingState.None;
+        const rect = this.element.getBoundingClientRect();
+        this.renderWidth = rect.width;
+        this.renderHeight = rect.height;
     }
 
     update() {
@@ -27,6 +29,9 @@ class Pickaxe {
         switch (this.swingState) {
             case Pickaxe.SwingState.None:
                 this.element.style.transform = "rotate(" + this.degrees + "deg)";
+                const rect = this.element.getBoundingClientRect();
+                this.renderWidth = rect.width;
+                this.renderHeight = rect.height;
                 break;
             case Pickaxe.SwingState.Swinging:
                 // For now, say we are constantly rotating.
@@ -46,15 +51,19 @@ class Pickaxe {
             console.log("left " + this.element.style.left + " top " + this.element.style.top)
         } else {
             let normalMouse = getNormalizedMousePos();
-            // say world coordinates are 100x100
-            this.pos = normalMouse.scaled(100);
+            // say world coordinates are 160x90
+            this.pos = new Vector2(normalMouse.x * WORLD_WIDTH, normalMouse.y * WORLD_HEIGHT);
 
-            const normalPos = this.pos.scaled(1 / 100);
+            const normalPos = normalMouse;
             const screen = getElement("viewport").getBoundingClientRect();
             const screenPos = new Vector2(normalPos.x * screen.width, normalPos.y * screen.height);
-            const rect = this.element.getBoundingClientRect();
-            this.element.style.left = (screenPos.x - this.width / 2) + "px";
-            this.element.style.top = (screenPos.y - this.height / 2) + "px";
+            this.renderLeft = (screenPos.x - this.renderWidth / 2) + "px";
+            this.renderTop = (screenPos.y - this.renderHeight / 2) + "px";
         }
+    }
+
+    render() {
+        this.element.style.left = this.renderLeft;
+        this.element.style.top = this.renderTop; 
     }
 }
