@@ -5,6 +5,7 @@ import { Vector2 } from "./math/vector2.js";
 import { Random } from "./random.js";
 import { getElement, drawViewportPosition, renderSquareElement, makeElement } from "./game.js";
 
+// todo: fix
 export class BlockConveyorBelt extends Entity {
     constructor() {
         // required by javascript.
