@@ -3,6 +3,13 @@ export class Vector2 {
         this.x = x;
         this.y = y;
     }
+    add(vector2) {
+        this.x += vector2.x;
+        this.y += vector2.y;
+    }
+    plus2(x, y) {
+        return new Vector2(this.x + x, this.y + y);
+    }
     plus(vector2) {
         return new Vector2(this.x + vector2.x, this.y + vector2.y);
     }

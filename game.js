@@ -3,6 +3,7 @@ import { Pickaxe } from "./pickaxe.js";
 import { Vector2 } from "./math/vector2.js";
 import { BlockConveyorBelt } from "./block_conveyor_belt.js";
 
+// in console debugging, do const game = await import("./game.js")...
 export const PlayerInputs = Object.freeze({
     Jump: ["KeyW", "Space"],
     LeftClick: [0],
@@ -52,30 +53,30 @@ export let gamePaused = false;
 export let showHitboxes = false;
 export let inGameplayMode = true;
 
-export function makeElement(uniqueClassName) {
+export function makeElement(uniqueClassName, from = "viewport") {
     const element = document.createElement("div");
     element.className = uniqueClassName;
-    getElement("viewport").appendChild(element);
+    getElement(from).appendChild(element);
     return element;
 }
 
-export function renderSquareElement(square, uniqueClassName) {
-    const element = makeElement(uniqueClassName);
+export function renderSquareElement(square, uniqueClassName, from = "viewport") {
+    const element = makeElement(uniqueClassName, from);
     // TODO
     const dimensions = square.squareDimensions();
-    drawViewportDimensions(element.style, dimensions[0], dimensions[1]);
-    drawViewportPosition(element.style, square.pos());
+    drawViewportDimensions(element.style, dimensions[0], dimensions[1], from);
+    drawViewportPosition(element.style, square.pos(), from);
 }
 
-function drawViewportDimensions(style, width, height) {
-    const screen = getElement("viewport").getBoundingClientRect();
+function drawViewportDimensions(style, width, height, from = "viewport") {
+    const screen = getElement(from).getBoundingClientRect();
     const norm = new Vector2(width / WORLD_WIDTH, height / WORLD_HEIGHT);
     style.width = (screen.width * norm.x) + "px";
     style.height = (screen.height * norm.y) + "px";
 }
 
-export function drawViewportPosition(style, worldPosition) {
-    const screen = getElement("viewport").getBoundingClientRect();
+export function drawViewportPosition(style, worldPosition, from = "viewport") {
+    const screen = getElement(from).getBoundingClientRect();
     const norm = new Vector2(worldPosition.x / WORLD_WIDTH, worldPosition.y / WORLD_HEIGHT);
     style.left = (screen.width * norm.x) + "px";
     style.top = (screen.height * norm.y) + "px";
@@ -127,7 +128,7 @@ function update() {
         if (PlayerInputsControllerKeyDown.Jump) {
             console.log("pressed jump");
         }
-        if (PlayerInputsController.ShowHitboxes) {
+        if (PlayerInputsControllerKeyDown.ShowHitboxes) {
             showHitboxes = !showHitboxes;
         }
 
@@ -135,7 +136,15 @@ function update() {
         for (const entity of entities) {
             entity.update();
             entity.render();
-            if (showHitboxes) {
+        }
+
+        for (const node of getElement("hitbox-container").children) {
+            node.remove();
+            console.log("removing node");
+        }
+
+        if (showHitboxes) {
+            for (const entity of entities) {
                 entity.renderHitbox();
             }
         }

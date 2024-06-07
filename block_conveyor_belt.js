@@ -60,6 +60,12 @@ export class BlockConveyorBelt extends Entity {
         for (let column of this.blocks) {
             for (let block of column) {
                 block.pos.x += movementLeft;
+
+                // also update hitbox.
+                // the general way will be to do this.
+                const lastPos = block.hitbox.pos();
+                const toCurr = block.pos.minus(lastPos);
+                block.hitbox.moveBy(toCurr);
             }
         }
     }
@@ -94,8 +100,7 @@ export class BlockConveyorBelt extends Entity {
     renderHitbox() {
         for (let column of this.blocks) {
             for (let block of column) {
-                // TODO
-                renderSquareElement(block.hitbox, "red-outline-square");
+                renderSquareElement(block.hitbox, "belt-based red-outline-square", "hitbox-container");
             }
         }
     }
@@ -135,6 +140,7 @@ class Block {
         this.pos = pos;
         this.element = element;
         this.hitbox = Polygon.square(this.pos, Block.SIZE);
+        console.log(this.hitbox);
     }
 
     static mkElement() {
