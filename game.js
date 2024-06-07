@@ -127,6 +127,9 @@ function update() {
         if (PlayerInputsControllerKeyDown.Jump) {
             console.log("pressed jump");
         }
+        if (PlayerInputsController.ShowHitboxes) {
+            showHitboxes = !showHitboxes;
+        }
 
         // updateEntities(frames);
         for (const entity of entities) {
