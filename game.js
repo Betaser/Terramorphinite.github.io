@@ -1,20 +1,27 @@
-const PlayerInputs = Object.freeze({
+import { updateInput, setupInput } from "./input.js";
+import { Pickaxe } from "./pickaxe.js";
+import { Vector2 } from "./math/vector2.js";
+import { BlockConveyorBelt } from "./block_conveyor_belt.js";
+
+export const PlayerInputs = Object.freeze({
     Jump: ["KeyW", "Space"],
     LeftClick: [0],
-    FreezeGame: ["KeyF"]
+    FreezeGame: ["KeyF"],
+    ToggleGameplayMode: ["KeyG"],
+    ShowHitboxes: ["KeyH"]
 });
 
-const PlayerInputsController = Object.assign({}, PlayerInputs);
+export const PlayerInputsController = Object.assign({}, PlayerInputs);
 for (const action of Object.keys(PlayerInputsController)) {
     PlayerInputsController[action] = false;
 }
 
-const LastPlayerInputs = Object.assign({}, PlayerInputs);
+export const LastPlayerInputs = Object.assign({}, PlayerInputs);
 for (const action of Object.keys(LastPlayerInputs)) {
     LastPlayerInputs[action] = false;
 }
 
-const PlayerInputsControllerKeyDown = Object.assign({}, PlayerInputs);
+export const PlayerInputsControllerKeyDown = Object.assign({}, PlayerInputs);
 for (const action of Object.keys(PlayerInputsController)) {
     PlayerInputsControllerKeyDown[action] = false;
 }
@@ -38,12 +45,43 @@ function initFps(fpsValue) {
 }
 initFps(60);
 
-const WORLD_WIDTH = 160;
-const WORLD_HEIGHT = 90;
+export const WORLD_WIDTH = 160;
+export const WORLD_HEIGHT = 90;
 
-let gamePaused = false;
+export let gamePaused = false;
+export let showHitboxes = false;
+export let inGameplayMode = true;
 
-let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
+export function makeElement(uniqueClassName) {
+    const element = document.createElement("div");
+    element.className = uniqueClassName;
+    getElement("viewport").appendChild(element);
+    return element;
+}
+
+export function renderSquareElement(square, uniqueClassName) {
+    const element = makeElement(uniqueClassName);
+    // TODO
+    const dimensions = square.squareDimensions();
+    drawViewportDimensions(element.style, dimensions[0], dimensions[1]);
+    drawViewportPosition(element.style, square.pos());
+}
+
+function drawViewportDimensions(style, width, height) {
+    const screen = getElement("viewport").getBoundingClientRect();
+    const norm = new Vector2(width / WORLD_WIDTH, height / WORLD_HEIGHT);
+    style.width = (screen.width * norm.x) + "px";
+    style.height = (screen.height * norm.y) + "px";
+}
+
+export function drawViewportPosition(style, worldPosition) {
+    const screen = getElement("viewport").getBoundingClientRect();
+    const norm = new Vector2(worldPosition.x / WORLD_WIDTH, worldPosition.y / WORLD_HEIGHT);
+    style.left = (screen.width * norm.x) + "px";
+    style.top = (screen.height * norm.y) + "px";
+}
+
+export let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 let viewportRatio = 1;
 {
     let viewport = getElement("viewport").getBoundingClientRect();
@@ -65,6 +103,10 @@ function update() {
             gamePaused = !gamePaused;
             console.log("game " + (gamePaused ? "paused" : "unpaused"));
         }
+        if (PlayerInputsControllerKeyDown.ToggleGameplayMode) {
+            inGameplayMode = !inGameplayMode;
+        }
+        getElement("in-gameplay-mode").innerHTML = inGameplayMode ? "gameplay mode (toggle with G)" : "website mode (toggle with G)";
 
         let background = getElement("background").getBoundingClientRect();
         // very wide
@@ -87,14 +129,14 @@ function update() {
         }
 
         // updateEntities(frames);
-        for (entity of entities) {
+        for (const entity of entities) {
             entity.update();
+            entity.render();
+            if (showHitboxes) {
+                entity.renderHitbox();
+            }
         }
 
-        for (entity of entities) {
-            entity.render();
-        }
-        
         frames++;
 
         if (frames % displayFrameInterval === 0) {
@@ -108,6 +150,6 @@ function update() {
 
 update();
 
-function getElement(uniqueClassName) {
+export function getElement(uniqueClassName) {
     return document.getElementsByClassName(uniqueClassName)[0];
 }

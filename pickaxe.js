@@ -1,9 +1,16 @@
-class Pickaxe {
+import { Vector2 } from "./math/vector2.js";
+import { Entity } from "./entity.js";
+import { getElement, WORLD_HEIGHT, WORLD_WIDTH } from "./game.js";
+import { getNormalizedMousePos } from "./input.js";
+import { PlayerInputsController } from "./game.js";
+
+export class Pickaxe extends Entity {
     static SwingState = Object.freeze({
         None : "None",
         Swinging : "Swinging"
     });
     constructor(element) {
+        super();
         this.pos = new Vector2(0, 0);
         this.element = element;
         this.initialDegrees = 0;
@@ -16,6 +23,8 @@ class Pickaxe {
         this.renderWidth = rect.width;
         this.renderHeight = rect.height;
     }
+
+    renderHitbox() {}
 
     update() {
         if (PlayerInputsController.LeftClick) {

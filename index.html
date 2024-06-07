@@ -10,7 +10,10 @@
 		<div class="background">
 			<ul class="tl-infobox">
 				<li>
-					<p class="fps">fps: </p>
+					<p class="fps"></p>
+				</li>
+				<li>
+					<p class="in-gameplay-mode"></p>
 				</li>
 			</ul>
 			<div class="viewport">
@@ -19,11 +22,14 @@
 		</div>
 
 		<!-- in this order. -->
-		<script src="math.js"></script>
-		<script src="random.js"></script>
-		<script src="input.js"></script>
-		<script src="pickaxe.js"></script>
-		<script src="block_conveyor_belt.js"></script>
-		<script src="game.js"></script>
+		<script type="module" src="math/misc.js"></script>
+		<script type="module" src="math/polygon.js"></script>
+		<script type="module" src="math/vector2.js"></script>
+		<script type="module" src="entity.js"></script>
+		<script type="module" src="random.js"></script>
+		<script type="module" src="input.js"></script>
+		<script type="module" src="pickaxe.js"></script>
+		<script type="module" src="block_conveyor_belt.js"></script>
+		<script type="module" src="game.js"></script>
 	</body>
 </html>

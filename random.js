@@ -1,6 +1,6 @@
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
 // 32 bit numbers.
-class Random {
+export class Random {
     constructor(seed) {
         this.a = seed;
     }

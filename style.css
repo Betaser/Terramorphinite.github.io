@@ -5,6 +5,15 @@ body {
     overflow: hidden;
 }
 
+/* generic shape for debugging */
+.red-outline-square {
+    background-color: none;
+    outline-style: solid;
+    outline-color: red;
+    z-index: 10;
+    position: absolute;
+}
+
 /* don't use vw... it's doesn't use the parent size. */
 .block {
     width: 8%;

@@ -1,5 +1,14 @@
-class BlockConveyorBelt {
+import { WORLD_HEIGHT, WORLD_WIDTH, gamePaused } from "./game.js"
+import { Entity } from "./entity.js";
+import { Polygon } from "./math/polygon.js";
+import { Vector2 } from "./math/vector2.js";
+import { Random } from "./random.js";
+import { getElement, drawViewportPosition, renderSquareElement, makeElement } from "./game.js";
+
+export class BlockConveyorBelt extends Entity {
     constructor() {
+        // required by javascript.
+        super();
         this.columnSize = 5;
         this.startingColumns = 4;
         this.onTheRight = WORLD_WIDTH - (Block.SIZE * this.startingColumns);
@@ -53,17 +62,39 @@ class BlockConveyorBelt {
             }
         }
     }
-    
+
     render() {
+        for (const column of this.blocks) {
+            for (const block of column) {
+                drawViewportPosition(block.element.style, block.pos);
+            }
+        }
+    }
+    
+    renderBad() {
         const screen = getElement("viewport").getBoundingClientRect();
         for (let column of this.blocks) {
             for (let block of column) {
+                /*
                 // start at 160 - 8 + 4.
                 const normCenter = new Vector2((block.pos.x + Block.SIZE / 2) / WORLD_WIDTH, (block.pos.y + Block.SIZE / 2) / WORLD_HEIGHT);
                 const rect = block.element.getBoundingClientRect();
                 block.element.style.left = (screen.width * normCenter.x - rect.width / 2) + "px";
                 block.element.style.top = (screen.height * normCenter.y - rect.height / 2) + "px";
                 // console.log("compare the two, " + (Block.SIZE / 2 / WORLD_HEIGHT * screen.height) + " vs " + rect.height / 2);
+                */
+               const normPos = new Vector2(block.pos.x / WORLD_WIDTH, block.pos.y / WORLD_HEIGHT);
+               block.element.style.left = (screen.width * normPos.x) + "px";
+               block.element.style.top = (screen.height * normPos.y) + "px";
+            }
+        }
+    }
+
+    renderHitbox() {
+        for (let column of this.blocks) {
+            for (let block of column) {
+                // TODO
+                renderSquareElement(block.hitbox, "red-outline-square");
             }
         }
     }
@@ -102,13 +133,11 @@ class Block {
     constructor(element, pos) {
         this.pos = pos;
         this.element = element;
+        this.hitbox = Polygon.square(this.pos, Block.SIZE);
     }
 
     static mkElement() {
-        const element = document.createElement("div");
-        element.className = "block";
-        getElement("viewport").appendChild(element);
-        return element;
+        return makeElement("block");
     }
 }
 
@@ -119,9 +148,6 @@ class AirBlock extends Block {
     }
 
     static mkAirElement() {
-        const element = document.createElement("div");
-        element.className = "air block";
-        getElement("viewport").appendChild(element);
-        return element;
+        return makeElement("air block");
     }
 }

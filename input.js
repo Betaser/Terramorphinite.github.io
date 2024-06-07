@@ -1,11 +1,17 @@
-let mouseX = 0;
-let mouseY = 0;
+import { Vector2 } from "./math/vector2.js";
+import { inGameplayMode, getElement } from "./game.js";
+import { PlayerInputsController, PlayerInputs, PlayerInputsControllerKeyDown, LastPlayerInputs } from "./game.js";
+import { boxContains } from "./math/misc.js";
+
+export let mouseX = 0;
+export let mouseY = 0;
+
 onmousemove = e => {
     mouseX = e.clientX;
     mouseY = e.clientY;
 };
 
-function getNormalizedMousePos() {
+export function getNormalizedMousePos() {
     const screen = getElement("viewport").getBoundingClientRect();
     return new Vector2(
         Math.max(0, Math.min(1, (mouseX - screen.left) / screen.width)),
@@ -32,24 +38,41 @@ function updateInputs(e, eventInfoToCheck = "code", keyDown = true) {
 }
 
 onmouseup = e => {
+    if (!inGameplayMode) return;
     e.preventDefault();
     updateInputs(e, "button", false);
 };
 
 onmousedown = e => {
+    if (!inGameplayMode) return;
     e.preventDefault();
     updateInputs(e, "button", true);
 };
 
 document.addEventListener("contextmenu", e => {
-    if (e.button === 2) {
-        // console.log("right mouse button");
+    if (!inGameplayMode) return;
+    const fpsRect = getElement("tl-infobox");
+    if (e.button === 2 
+        && !boxContains(fpsRect.getBoundingClientRect(), new Vector2(mouseX, mouseY))) {
         e.preventDefault();
-        // console.log("prevent context menu");
     }
 });
 
-function setupInput() {
+function openContextMenu() {
+    var ev3 = new CustomMouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: false,
+        view: window,
+        button: 2,
+        buttons: 0,
+        clientX: mouseX,
+        clientY: mouseY
+    });
+    getElement("background").dispatchEvent(ev3);
+    return;
+}
+
+export function setupInput() {
     document.addEventListener("keyup", e => {
         updateInputs(e, "code", false);
     });
@@ -61,7 +84,7 @@ function setupInput() {
     //  and therefore I would have to invert the dependency of PlayerInputsController and PlayerInputsControllerKeyDown for just the mouse, bleh.
 }
 
-function updateInput() {
+export function updateInput() {
     // Proper way to toggle an input.
     for (const input of Object.keys(PlayerInputsController)) {
         PlayerInputsControllerKeyDown[input] = !LastPlayerInputs[input] && PlayerInputsController[input];
