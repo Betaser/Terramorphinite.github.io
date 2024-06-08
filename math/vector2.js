@@ -16,6 +16,12 @@ export class Vector2 {
     minus(vector2) {
         return new Vector2(this.x - vector2.x, this.y - vector2.y);
     }
+    div2(a, b) {
+        return new Vector2(this.x / a, this.y / b);
+    }
+    times2(a, b) {
+        return new Vector2(this.x * a, this.y * b);
+    }
     scaled(by) {
         return new Vector2(this.x * by, this.y * by);
     }

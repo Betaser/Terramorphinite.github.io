@@ -5,8 +5,9 @@ export class Polygon {
         this.points = points
     }
 
-    squareDimensions() {
-        return this.points[2].minus(this.pos()).toList();
+    rectDimensions() {
+        const dim = this.points[2].minus(this.pos());
+        return dim;
     }
 
     moveBy(vector2) {
@@ -15,14 +16,18 @@ export class Polygon {
         }
     }
 
-    static square(topLeft, size) {
+    static rect(topLeft, width, height) {
         topLeft = topLeft.clone();
         return new Polygon([
             topLeft,
-            topLeft.plus2(size, 0),
-            topLeft.plus2(size, size),
-            topLeft.plus2(0, size)
+            topLeft.plus2(width, 0),
+            topLeft.plus2(width, height),
+            topLeft.plus2(0, height)
         ]);
+    }
+
+    static square(topLeft, size) {
+        return Polygon.rect(topLeft, size, size);
     }
 
     pos() {

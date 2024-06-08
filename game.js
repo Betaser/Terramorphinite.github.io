@@ -62,9 +62,8 @@ export function makeElement(uniqueClassName, from = "viewport") {
 
 export function renderSquareElement(square, uniqueClassName, from = "viewport") {
     const element = makeElement(uniqueClassName, from);
-    // TODO
-    const dimensions = square.squareDimensions();
-    drawViewportDimensions(element.style, dimensions[0], dimensions[1], from);
+    const dimensions = square.rectDimensions();
+    drawViewportDimensions(element.style, dimensions.x, dimensions.y, from);
     drawViewportPosition(element.style, square.pos(), from);
 }
 
@@ -77,18 +76,38 @@ function drawViewportDimensions(style, width, height, from = "viewport") {
 
 export function drawViewportPosition(style, worldPosition, from = "viewport") {
     const screen = getElement(from).getBoundingClientRect();
-    const norm = new Vector2(worldPosition.x / WORLD_WIDTH, worldPosition.y / WORLD_HEIGHT);
+    const norm = worldPosition.div2(WORLD_WIDTH, WORLD_HEIGHT);
     style.left = (screen.width * norm.x) + "px";
     style.top = (screen.height * norm.y) + "px";
 }
 
-export let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 let viewportRatio = 1;
 {
     let viewport = getElement("viewport").getBoundingClientRect();
     viewportRatio = viewport.width / viewport.height;
 }
 console.log("viewport is " + viewportRatio);
+
+function updateViewportDimensions() {
+    let background = getElement("background").getBoundingClientRect();
+    // very wide
+    let viewportWidth, viewportHeight;
+    if (background.width / background.height > viewportRatio) {
+        viewportHeight = background.height;
+        viewportWidth = viewportHeight * viewportRatio;
+    } else {
+        viewportWidth = background.width;
+        viewportHeight = viewportWidth / viewportRatio;
+    }
+    const viewport = getElement("viewport");
+    viewport.style.width = viewportWidth + "px";
+    viewport.style.height = viewportHeight + "px";
+    viewport.style.top = ((background.height - viewportHeight) / 2) + "px";
+    viewport.style.left = ((background.width - viewportWidth) / 2) + "px";
+}
+updateViewportDimensions();
+
+export let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
 
 function update() {
     requestAnimationFrame(update);
@@ -109,21 +128,7 @@ function update() {
         }
         getElement("in-gameplay-mode").innerHTML = inGameplayMode ? "gameplay mode (toggle with G)" : "website mode (toggle with G)";
 
-        let background = getElement("background").getBoundingClientRect();
-        // very wide
-        let viewportWidth, viewportHeight;
-        if (background.width / background.height > viewportRatio) {
-            viewportHeight = background.height;
-            viewportWidth = viewportHeight * viewportRatio;
-        } else {
-            viewportWidth = background.width;
-            viewportHeight = viewportWidth / viewportRatio;
-        }
-        const viewport = getElement("viewport");
-        viewport.style.width = viewportWidth + "px";
-        viewport.style.height = viewportHeight + "px";
-        viewport.style.top = ((background.height - viewportHeight) / 2) + "px";
-        viewport.style.left = ((background.width - viewportWidth) / 2) + "px";
+        updateViewportDimensions();
 
         if (PlayerInputsControllerKeyDown.Jump) {
             console.log("pressed jump");

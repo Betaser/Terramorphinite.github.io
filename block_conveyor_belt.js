@@ -77,25 +77,6 @@ export class BlockConveyorBelt extends Entity {
             }
         }
     }
-    
-    renderBad() {
-        const screen = getElement("viewport").getBoundingClientRect();
-        for (let column of this.blocks) {
-            for (let block of column) {
-                /*
-                // start at 160 - 8 + 4.
-                const normCenter = new Vector2((block.pos.x + Block.SIZE / 2) / WORLD_WIDTH, (block.pos.y + Block.SIZE / 2) / WORLD_HEIGHT);
-                const rect = block.element.getBoundingClientRect();
-                block.element.style.left = (screen.width * normCenter.x - rect.width / 2) + "px";
-                block.element.style.top = (screen.height * normCenter.y - rect.height / 2) + "px";
-                // console.log("compare the two, " + (Block.SIZE / 2 / WORLD_HEIGHT * screen.height) + " vs " + rect.height / 2);
-                */
-               const normPos = new Vector2(block.pos.x / WORLD_WIDTH, block.pos.y / WORLD_HEIGHT);
-               block.element.style.left = (screen.width * normPos.x) + "px";
-               block.element.style.top = (screen.height * normPos.y) + "px";
-            }
-        }
-    }
 
     renderHitbox() {
         for (let column of this.blocks) {
@@ -140,7 +121,6 @@ class Block {
         this.pos = pos;
         this.element = element;
         this.hitbox = Polygon.square(this.pos, Block.SIZE);
-        console.log(this.hitbox);
     }
 
     static mkElement() {
