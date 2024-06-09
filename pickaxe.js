@@ -1,8 +1,7 @@
 import { Vector2 } from "./math/vector2.js";
 import { Entity } from "./entity.js";
-import { getElement, WORLD_HEIGHT, WORLD_WIDTH } from "./game.js";
+import { gamePaused, getElement, PlayerInputsControllerKeyDown, renderSquareElement, WORLD_HEIGHT, WORLD_WIDTH } from "./game.js";
 import { getNormalizedMousePos } from "./input.js";
-import { PlayerInputsController } from "./game.js";
 import { Polygon } from "./math/polygon.js";
 
 export class Pickaxe extends Entity {
@@ -36,13 +35,15 @@ export class Pickaxe extends Entity {
         this.transformOrigin = tlNormOrigin.times2(width, height);
     }
 
-    renderHitbox() {}
+    renderHitbox() {
+        renderSquareElement(this.hitbox, "red-outline-square", "hitbox-container");
+    }
 
     update() {
-        if (PlayerInputsController.LeftClick) {
+        if (PlayerInputsControllerKeyDown.LeftClick) {
             this.swingState = Pickaxe.SwingState.Swinging;
         }
-        if (PlayerInputsController.FreezeGame) {
+        if (gamePaused) {
             this.swingState = Pickaxe.SwingState.None;
             this.degrees = this.initialDegrees;
         }
@@ -67,22 +68,19 @@ export class Pickaxe extends Entity {
                 this.element.style.transform = "rotate(" + this.degrees + "deg)";
                 break;
         }
-        if (PlayerInputsController.FreezeGame) {
-            // don't follow the mouse, for debugging purposes.
-            console.log("left " + this.element.style.left + " top " + this.element.style.top)
-        } else {
+        if (!gamePaused) {
             const normalMouse = getNormalizedMousePos();
-            // say world coordinates are 160x90
-            const center = this.hitbox.rectDimensions().scaled(0.5);
+            // put pos at the location at which style.left and style.top should be at.
             this.pos = normalMouse.times2(WORLD_WIDTH, WORLD_HEIGHT)
-                .minus(this.transformOrigin.minus(center));
+                .minus(this.transformOrigin);
             const normalPos = this.pos.div2(WORLD_WIDTH, WORLD_HEIGHT);
 
             const screen = getElement("viewport").getBoundingClientRect();
             const screenPos = normalPos.times2(screen.width, screen.height);
-            this.renderLeft = (screenPos.x - this.renderWidth / 2) + "px";
-            this.renderTop = (screenPos.y - this.renderHeight / 2) + "px";
+            this.renderLeft = screenPos.x + "px";
+            this.renderTop = screenPos.y + "px";
         }
+        this.hitbox.moveBy(this.pos.minus(this.hitbox.pos()));
     }
 
     render() {

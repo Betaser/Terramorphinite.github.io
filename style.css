@@ -16,7 +16,6 @@ body {
 
 /* don't use vw... it's doesn't use the parent size. */
 .block {
-    width: 8%;
     aspect-ratio: 1 / 1;
     z-index: 2;
     position: absolute;

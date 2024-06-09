@@ -1,9 +1,9 @@
-import { WORLD_HEIGHT, WORLD_WIDTH, gamePaused } from "./game.js"
+import { WORLD_WIDTH, gamePaused, getElement } from "./game.js"
 import { Entity } from "./entity.js";
 import { Polygon } from "./math/polygon.js";
 import { Vector2 } from "./math/vector2.js";
 import { Random } from "./random.js";
-import { getElement, drawViewportPosition, renderSquareElement, makeElement } from "./game.js";
+import { renderViewportPosition, renderSquareElement, makeElement } from "./game.js";
 
 // todo: fix
 export class BlockConveyorBelt extends Entity {
@@ -23,7 +23,7 @@ export class BlockConveyorBelt extends Entity {
                 // For testing and for the future, say the randomization is seed-based.
                 let spawnArgs = null;
                 if (this.random.getNorm() < 0.7) {
-                    spawnArgs = [Block.mkElement(), (element, pos) => new Block(element, pos)];
+                    spawnArgs = [this.mkBlockElement(), (element, pos) => new Block(element, pos)];
                 } else {
                     spawnArgs = [AirBlock.mkAirElement(), (element, pos) => new AirBlock(element, pos)];
                 }
@@ -38,7 +38,7 @@ export class BlockConveyorBelt extends Entity {
             return;
         }
 
-        const FRAMES_TO_SPAWN = 60;
+        const FRAMES_TO_SPAWN = 20;
         const movementLeft = -Block.SIZE / FRAMES_TO_SPAWN / this.columnSize;
         this.frameCounter++;
 
@@ -50,7 +50,7 @@ export class BlockConveyorBelt extends Entity {
 
             let spawnArgs = null;
             if (this.random.getNorm() < 0.7) {
-                spawnArgs = [Block.mkElement(), (element, pos) => new Block(element, pos)];
+                spawnArgs = [this.mkBlockElement(), (element, pos) => new Block(element, pos)];
             } else {
                 spawnArgs = [AirBlock.mkAirElement(), (element, pos) => new AirBlock(element, pos)];
             }
@@ -68,12 +68,25 @@ export class BlockConveyorBelt extends Entity {
                 block.hitbox.moveBy(toCurr);
             }
         }
+
+        for (let i = 0; i < this.blocks.length; i++) {
+            const column = this.blocks[i];
+            if (column.length === 0) continue;
+
+            const right = column[0].pos.x + column[0].hitbox.rectDimensions().x;
+            if (right < 0) {
+                const splicedColumn = this.blocks.splice(i, 1)[0];
+                for (const block of splicedColumn) {
+                    getElement("viewport").removeChild(block.element);
+                }
+            }
+        }
     }
 
     render() {
         for (const column of this.blocks) {
             for (const block of column) {
-                drawViewportPosition(block.element.style, block.pos);
+                renderViewportPosition(block.element.style, block.pos);
             }
         }
     }
@@ -96,7 +109,7 @@ export class BlockConveyorBelt extends Entity {
         return column;
     }
 
-    static spawn(pastBlocks, columnSize, element = Block.mkElement(), blockConstructor = (element, pos) => new Block(element, pos)) {
+    static spawn(pastBlocks, columnSize, element = this.mkBlockElement(), blockConstructor = (element, pos) => new Block(element, pos)) {
         let lastColumn = pastBlocks[pastBlocks.length - 1];
         const lastPos = lastColumn[lastColumn.length - 1].pos;
 
@@ -109,24 +122,42 @@ export class BlockConveyorBelt extends Entity {
             lastColumn.push(blockConstructor(element, lastPos.plus(new Vector2(0, Block.SIZE))));
         }
     }
+
+    mkBlockElement() {
+        return Block.mkElement();
+    }
+
+    numBlocks() {
+        return this.columnSize * this.blocks.length + this.blocks[this.blocks.length - 1].length;
+    }
 }
 
 class Block {
 
     // world is 160x90.
     // to match the render size, we use 0.08.
-    static SIZE = 0.08 * 160;
+    static SIZE = Block._NORM_SIZE * 160;
 
+    /**
+     * @param {HTMLElement} element 
+     * @param {Vector2} pos 
+     */
     constructor(element, pos) {
         this.pos = pos;
         this.element = element;
+        this.element.style.width = _NORM_SIZE * 100 + "%";
         this.hitbox = Polygon.square(this.pos, Block.SIZE);
     }
 
+    /**
+     * @returns {HTMLDivElement}
+     */
     static mkElement() {
         return makeElement("block");
     }
 }
+const _NORM_SIZE = 0.03;
+Block.SIZE = _NORM_SIZE * 160;
 
 class AirBlock extends Block {
 

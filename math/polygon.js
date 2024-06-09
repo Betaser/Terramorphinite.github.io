@@ -1,7 +1,13 @@
 import { Vector2 } from "./vector2.js";
 
 export class Polygon {
+    /**
+     * @param {Array<Vector2>} points 
+     */
     constructor(points) {
+        /** 
+         * @property {Array<Vector2>} points
+         */
         this.points = points
     }
 

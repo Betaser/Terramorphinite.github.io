@@ -53,28 +53,31 @@ export let gamePaused = false;
 export let showHitboxes = false;
 export let inGameplayMode = true;
 
-export function makeElement(uniqueClassName, from = "viewport") {
+export function makeElement(uniqueClassName, { from = "viewport", id = null } = {}) {
     const element = document.createElement("div");
+    if (id !== null) {
+        element.id = id;
+    }
     element.className = uniqueClassName;
     getElement(from).appendChild(element);
     return element;
 }
 
 export function renderSquareElement(square, uniqueClassName, from = "viewport") {
-    const element = makeElement(uniqueClassName, from);
+    const element = makeElement(uniqueClassName, { from: from });
     const dimensions = square.rectDimensions();
-    drawViewportDimensions(element.style, dimensions.x, dimensions.y, from);
-    drawViewportPosition(element.style, square.pos(), from);
+    renderViewportDimensions(element.style, dimensions.x, dimensions.y, from);
+    renderViewportPosition(element.style, square.pos(), from);
 }
 
-function drawViewportDimensions(style, width, height, from = "viewport") {
+function renderViewportDimensions(style, width, height, from = "viewport") {
     const screen = getElement(from).getBoundingClientRect();
     const norm = new Vector2(width / WORLD_WIDTH, height / WORLD_HEIGHT);
     style.width = (screen.width * norm.x) + "px";
     style.height = (screen.height * norm.y) + "px";
 }
 
-export function drawViewportPosition(style, worldPosition, from = "viewport") {
+export function renderViewportPosition(style, worldPosition, from = "viewport") {
     const screen = getElement(from).getBoundingClientRect();
     const norm = worldPosition.div2(WORLD_WIDTH, WORLD_HEIGHT);
     style.left = (screen.width * norm.x) + "px";
@@ -145,7 +148,6 @@ function update() {
 
         for (const node of getElement("hitbox-container").children) {
             node.remove();
-            console.log("removing node");
         }
 
         if (showHitboxes) {
