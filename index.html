@@ -17,6 +17,10 @@
 				</li>
 			</ul>
 			<div class="viewport">
+				<div class="layers" style="z-index: 3; position: absolute">
+					<!-- canvas doesn't resize itself well. -->
+					<canvas class="canv" id="debug-layer" />
+				</div>
 				<div class="hitbox-container"></div>
 				<img class="pickaxe" 
 					 alt="pickaxe" 

@@ -3,6 +3,9 @@ export class Vector2 {
      * @param {number} x 
      * @param {number} y 
      */
+    static zero() {
+        return new Vector2(0, 0);
+    }
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -10,6 +13,13 @@ export class Vector2 {
     add(vector2) {
         this.x += vector2.x;
         this.y += vector2.y;
+        return this;
+    }
+    /**
+     * @returns {Number}
+     */
+    mag() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
     }
     plus2(x, y) {
         return new Vector2(this.x + x, this.y + y);

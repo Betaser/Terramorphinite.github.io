@@ -17,7 +17,7 @@ body {
 /* don't use vw... it's doesn't use the parent size. */
 .block {
     aspect-ratio: 1 / 1;
-    z-index: 2;
+    z-index: 1.5;
     position: absolute;
     /* default color */
     background-color: pink;
@@ -35,7 +35,7 @@ body {
 .pickaxe {
     width: 20%;
     aspect-ratio: 1 / 1;
-    z-index: 3;
+    z-index: 2;
     position: absolute;
 }
 
@@ -58,6 +58,24 @@ body {
     height: 720px;
     background-color: rgba(200, 200, 200, 0.6);
     position: absolute;
+}
+
+/* canvas doesn't resize itself well. */
+.canv {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.layers {
+    left: 0;
+    top: 0; 
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
 }
 
 .hitbox-container {

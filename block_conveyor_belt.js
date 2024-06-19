@@ -1,9 +1,9 @@
-import { WORLD_WIDTH, gamePaused, getElement } from "./game.js"
+import { WORLD_WIDTH, gamePaused, getElement, renderNow, pixelRatio, drawPolygon } from "./game.js"
 import { Entity } from "./entity.js";
 import { Polygon } from "./math/polygon.js";
 import { Vector2 } from "./math/vector2.js";
 import { Random } from "./random.js";
-import { renderViewportPosition, renderSquareElement, makeElement } from "./game.js";
+import { renderViewportPosition, makeElement } from "./game.js";
 
 // todo: fix
 export class BlockConveyorBelt extends Entity {
@@ -94,7 +94,13 @@ export class BlockConveyorBelt extends Entity {
     renderHitbox() {
         for (let column of this.blocks) {
             for (let block of column) {
-                renderSquareElement(block.hitbox, "belt-based red-outline-square", "hitbox-container");
+                // drawSquareElement(block.hitbox, "belt-based red-outline-square", "hitbox-container");
+                const rend = ctx => {
+                    ctx.lineWidth = 5 / pixelRatio();
+                    ctx.strokeStyle = "rgb(255, 0, 0)";
+                    drawPolygon(block.hitbox, ctx);
+                }
+                renderNow("debug-layer", rend);
             }
         }
     }
@@ -136,7 +142,7 @@ class Block {
 
     // world is 160x90.
     // to match the render size, we use 0.08.
-    static SIZE = Block._NORM_SIZE * 160;
+    static SIZE = -1;
 
     /**
      * @param {HTMLElement} element 
@@ -156,7 +162,7 @@ class Block {
         return makeElement("block");
     }
 }
-const _NORM_SIZE = 0.03;
+const _NORM_SIZE = 0.07;
 Block.SIZE = _NORM_SIZE * 160;
 
 class AirBlock extends Block {
