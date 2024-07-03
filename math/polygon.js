@@ -12,45 +12,42 @@ export class Polygon {
     }
 
     /**
-     * @param {Number} radians 
-     * @param {Vector2} around
+     * @param {Polygon} polygon 
      */
-    rotate(radians, around) {
-        // center points around around being the origin.
-        /*
-        const pos = this.pos().clone();
-        const relativePos = pos.minus(around);
-        const rand = Math.random() > 0.9;
-        this.moveTo(relativePos);
-        if (rand) {
-            console.log(relativePos.minus(pos));
-            // console.log(toAround);
-            console.log(this.clone().points);
+    copyFrom(polygon) {
+        for (let i = 0; i < this.points.length; i++) {
+            this.points[i].set(polygon.points[i]);
         }
-        */
-        // sin cos matrix blah blah.
-        // not sure how to use around.
-        const mat = [
-            [Math.cos(radians), Math.sin(radians)],
-            [-Math.sin(radians), Math.cos(radians)]
-        ];
+    }
+
+    /**
+     * @param {Array<Array<Number>>} matrix 
+     * @param {Vector2} around 
+     */
+    applyRotationMatrix(matrix, around) {
         for (let point of this.points) {
             const x = point.x;
             const y = point.y;
-            const diff = point.minus(around);
-            if (diff.mag() > 100) {
-                console.log(diff);
-            }
-            point.x = ((x - around.x) * mat[0][0] 
-                    +  (y - around.y) * mat[0][1]) + around.x;
-            point.y = ((x - around.x) * mat[1][0] 
-                    +  (y - around.y) * mat[1][1]) + around.y;
-
-            // why does this almost work
-            // point.x = x * mat[0][0] + y * mat[0][1];
-            // point.y = x * mat[1][0] + y * mat[1][1];
+            point.x = ((x - around.x) * matrix[0][0] 
+                    +  (y - around.y) * matrix[0][1]) + around.x;
+            point.y = ((x - around.x) * matrix[1][0] 
+                    +  (y - around.y) * matrix[1][1]) + around.y;
         }
-        // this.moveTo(pos);
+    }
+
+    /**
+     * @param {Number} radians 
+     * @param {Vector2} around
+     */
+    // Wikipedia says this order to the matrix will make positive rotations CCW, 
+    //  as positive angle would expect
+    rotate(radians, around) {
+        // sin cos matrix blah blah.
+        const mat = [
+            [Math.cos(radians), -Math.sin(radians)],
+            [Math.sin(radians), Math.cos(radians)]
+        ];
+        this.applyRotationMatrix(mat, around);
     }
 
     rectDimensions() {

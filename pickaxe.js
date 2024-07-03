@@ -1,8 +1,9 @@
 import { Vector2 } from "./math/vector2.js";
 import { Entity } from "./entity.js";
-import { gamePaused, getElement, PlayerInputsControllerKeyDown, WORLD_HEIGHT, WORLD_WIDTH, renderNow,  drawPolygon } from "./game.js";
+import { gamePaused, getElement, PlayerInputsControllerKeyDown, WORLD_HEIGHT, WORLD_WIDTH, renderNow,  drawPolygon, blockConveyorBelt } from "./game.js";
 import { getNormalizedMousePos } from "./input.js";
 import { Polygon } from "./math/polygon.js";
+import { rotateUntilHit } from "./math/misc.js";
 
 export class Pickaxe extends Entity {
     static SwingState = Object.freeze({
@@ -53,13 +54,14 @@ export class Pickaxe extends Entity {
         this.element.style.transformOrigin = 
             `${tlNormOrigin.x * 100}% ${tlNormOrigin.y * 100}% 0px`;
         this.transformOrigin = tlNormOrigin.times2(width, height);
+
+        this.rotateUntilHitRan = 0;
     }
 
     rotateHitbox(amt, around) {
-        const pos = this.hitbox.pos().clone();
-        this.hitbox = this.clonedHitbox.clone();
-        this.hitbox.moveTo(
-            around.minus(this.transformOrigin)
+        this.hitbox.copyFrom(this.clonedHitbox);
+        this.hitbox.moveTo(around
+            .minus(this.transformOrigin)
             .plus(this.clonedHitbox.pos()));
         this.hitbox.rotate(amt * Math.PI / 180, around);
     }
@@ -77,12 +79,25 @@ export class Pickaxe extends Entity {
     }
 
     update() {
+        if (this.rotateUntilHitRan > 0) {
+            if (this.rotateUntilHitRan === 1) {
+                this.swingState = Pickaxe.SwingState.None;
+                this.degrees = this.initialDegrees;
+                this.element.style.transform = "rotate(" + this.degrees + "deg)";
+                const rect = this.element.getBoundingClientRect();
+                this.renderWidth = rect.width;
+                this.renderHeight = rect.height;
+                this.hitbox.copyFrom(this.clonedHitbox);
+            }
+            // Challenge: try to figure this out while the hitbox is rotated.
+            // this.hitbox.moveTo(this.pos.plus(this.hitboxOffset));
+            this.rotateUntilHitRan--;
+            console.log("pause update");
+            return;
+        }
+
         if (PlayerInputsControllerKeyDown.LeftClick) {
             this.swingState = Pickaxe.SwingState.Swinging;
-        }
-        if (gamePaused) {
-            this.swingState = Pickaxe.SwingState.None;
-            this.degrees = this.initialDegrees;
         }
 
         switch (this.swingState) {
@@ -93,6 +108,8 @@ export class Pickaxe extends Entity {
                 // For now, say we are constantly rotating.
                 const rotationSpeed = 360 / 60;
                 this.degrees += rotationSpeed;
+
+                // Reset state.
                 if (this.degrees > 360) {
                     this.swingState = Pickaxe.SwingState.None;
                     this.degrees = this.initialDegrees;
@@ -103,25 +120,49 @@ export class Pickaxe extends Entity {
                     break;
                 }
 
+                const rotationPoint = getNormalizedMousePos().times2(WORLD_WIDTH, WORLD_HEIGHT);
+
+                // Try to actually rotate it until it hits something.
+                if (gamePaused) {
+                    // For now, only test the first hitbox.
+                    /** *@type {Array<Polygon>}*/
+                    let blockHitboxes = [];
+                    for (const column of blockConveyorBelt.blocks) {
+                        for (const block of column) {
+                            blockHitboxes.push(block.hitbox);
+                        }
+                    }
+                    const rotation = rotateUntilHit(this.hitbox, Math.PI * 2, rotationPoint, blockHitboxes);
+                    if (rotation === null) {
+                        console.log("null rotation");
+                    } else {
+                        this.hitbox.applyRotationMatrix(rotation.rotationMatrix, rotationPoint);
+                    }
+
+                    this.rotateUntilHitRan = 180;
+                    break;
+                }
+
                 // Choose to not mod this.degrees to notice if we have bugs.
                 // rotates around the middle of the pickaxe.
                 this.element.style.transform = "rotate(" + this.degrees + "deg)";
 
-                this.rotateHitbox(-this.degrees, getNormalizedMousePos().times2(WORLD_WIDTH, WORLD_HEIGHT));
+                this.rotateHitbox(this.degrees, rotationPoint);
+
                 break;
         }
-        if (!gamePaused) {
-            this.pos = this.rotationPosition();
-            const normalPos = this.pos.div2(WORLD_WIDTH, WORLD_HEIGHT);
 
-            const screen = getElement("viewport").getBoundingClientRect();
-            const screenPos = normalPos.times2(screen.width, screen.height);
-            this.renderLeft = screenPos.x + "px";
-            this.renderTop = screenPos.y + "px";
-        }
+        this.pos = this.topLeftWhenRotating();
+        const normalPos = this.pos.div2(WORLD_WIDTH, WORLD_HEIGHT);
+
+        const screen = getElement("viewport").getBoundingClientRect();
+        const screenPos = normalPos.times2(screen.width, screen.height);
+        this.renderLeft = screenPos.x + "px";
+        this.renderTop = screenPos.y + "px";
     }
 
-    rotationPosition() {
+    // Only for HTML graphics
+    topLeftWhenRotating() {
         const normalMouse = getNormalizedMousePos();
         // put pos at the location at which style.left and style.top should be at.
         this.pos = normalMouse.times2(WORLD_WIDTH, WORLD_HEIGHT)

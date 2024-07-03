@@ -188,7 +188,8 @@ function updateViewportDimensions() {
 }
 updateViewportDimensions();
 
-export let entities = [new Pickaxe(getElement("pickaxe")), new BlockConveyorBelt()];
+export const blockConveyorBelt = new BlockConveyorBelt();
+export let entities = [new Pickaxe(getElement("pickaxe")), blockConveyorBelt];
 
 function update() {
     requestAnimationFrame(update);

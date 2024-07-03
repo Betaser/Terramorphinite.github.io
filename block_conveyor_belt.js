@@ -5,7 +5,6 @@ import { Vector2 } from "./math/vector2.js";
 import { Random } from "./random.js";
 import { renderViewportPosition, makeElement } from "./game.js";
 
-// todo: fix
 export class BlockConveyorBelt extends Entity {
     constructor() {
         // required by javascript.
@@ -92,8 +91,8 @@ export class BlockConveyorBelt extends Entity {
     }
 
     renderHitbox() {
-        for (let column of this.blocks) {
-            for (let block of column) {
+        for (const column of this.blocks) {
+            for (const block of column) {
                 // drawSquareElement(block.hitbox, "belt-based red-outline-square", "hitbox-container");
                 const rend = ctx => {
                     ctx.lineWidth = 5 / pixelRatio();
